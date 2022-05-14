@@ -23,3 +23,11 @@ type GetUser struct {
 	NoHp 		string 		`json:"no_hp"`
 	Email 		string 		`json:"email"`
 }
+
+type UpdateUser struct {
+	Name      string 	`json:"name"`
+	NoHp      string 	`json:"no_hp"`
+	Email     string 	`json:"email"`
+	Password  string 	`json:"password"`
+	UpdatedAt time.Time `json:"updated_at"`
+}

@@ -12,3 +12,10 @@ type InsertLogin struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
+
+type UpdateUser struct {
+	Name     string `json:"name" validate:"required"`
+	NoHp     string `json:"no_hp"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

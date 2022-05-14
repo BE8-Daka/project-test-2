@@ -91,3 +91,33 @@ func (c *userController) GetbyID() echo.HandlerFunc {
 		return ctx.JSON(http.StatusOK, response.StatusOK(result))
 	}
 }
+
+func (c *userController) Update() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		user_id := middlewares.ExtractTokenUserId(ctx)
+		
+		var request request.UpdateUser
+
+		if err := ctx.Bind(&request); err != nil {
+			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestBind(err))
+		}
+
+		if err := c.Validate.Struct(request); err != nil {
+			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestRequired(err))
+		}
+
+		user := entity.User{
+			Name: request.Name,
+			NoHp: request.NoHp,
+			Email: request.Email,
+			Password: request.Password,
+		}
+
+		result, err := c.Connect.Update(uint(user_id), &user)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestDuplicate(err))
+		}
+
+		return ctx.JSON(http.StatusOK, response.StatusOK(result))
+	}
+}

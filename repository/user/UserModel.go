@@ -65,16 +65,35 @@ func (m *userModel) Login(username, password string) (response.InsertLogin, erro
 
 func (m *userModel) GetbyID(id uint) response.GetUser {
 	var user entity.User
-	result := m.DB.Where("id = ?", id).First(&user)
+	m.DB.Where("id = ?", id).First(&user)
+
+	return response.GetUser{
+		Name: 	user.Name,
+		Username: user.Username,
+		NoHp: 	user.NoHp,
+		Email: 	user.Email,
+	}
+}
+
+func (m *userModel) Update(user_id uint, user *entity.User) (response.UpdateUser, error) {
+	user.Name = strings.Title(strings.ToLower(user.Name))
+	user.Email = strings.ToLower(user.Email)
+	originalPassword := user.Password
+
+	bytes, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+	user.Password = string(bytes)
+	
+	result := m.DB.Where("id = ?", user_id).Updates(&user)
 
 	if result.RowsAffected == 0 {
-		return response.GetUser{}
+		return response.UpdateUser{}, result.Error
 	} else {
-		return response.GetUser{
+		return response.UpdateUser{
 			Name: 	user.Name,
-			Username: user.Username,
 			NoHp: 	user.NoHp,
 			Email: 	user.Email,
-		}
+			Password: originalPassword,
+			UpdatedAt: user.UpdatedAt,
+		}, nil
 	}
 }

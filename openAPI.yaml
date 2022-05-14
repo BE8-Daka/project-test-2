@@ -1,0 +1,487 @@
+openapi: 3.0.3
+info:
+  title: Todo List App
+  description: OPEN API for Todo tasks API
+  version: 1.0.0
+  contact:
+    name: Mahmuda Karima (DAKA)
+    email: dakasakti.id@gmail.com
+  license:
+    name: APACHE 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: Todo tasks API Server
+    url: https://{environment}.todoapps.com/api/v1/
+    variables:
+      environment:
+        default: dev
+        enum:
+          - dev
+          - prod
+paths:
+  /users/login:
+    post:
+      tags:
+        - Authentication
+      description: melakukan login (masuk)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: testing
+                password:
+                  type: string
+                  example: testing
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+        "401":
+          $ref: "#/components/responses/Response401"
+  /users/register:
+    post:
+      tags:
+        - Users
+      description: melakukan pembuatan akun (register)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsersSchema"
+      responses:
+        "201":
+          $ref: "#/components/responses/Response201"
+        "400":
+          $ref: "#/components/responses/Response400"
+  /users/profile:
+    get:
+      security:
+        - JWTAuth: []
+      tags:
+        - Users
+      description: melakukan pengambilan data profile sesuai user yang login
+      responses:
+        "200":
+          description: get user by id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimpleUserSchema"
+    put:
+      security:
+        - JWTAuth: []
+      tags:
+        - Users
+      description: melakukan update data profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserSchema"
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+    delete:
+      security:
+        - JWTAuth: []
+      tags:
+        - Users
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+  /todo/tasks:
+    post:
+      security:
+        - JWTAuth: []
+      tags:
+        - Todo tasks
+      summary: Post todo tasks
+      description: Crate new to do list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrUpdateTodolist"
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+    get:
+      security:
+        - JWTAuth: []
+      tags:
+        - Todo tasks
+      summary: Get all todo tasks
+      description: Get all active to do list by defauld
+      parameters:
+        - name: include_completed
+          in: query
+          required: false
+          description: Is include done todo tasks
+          schema:
+            type: boolean
+            nullable: true
+            default: false
+        - name: name
+          in: query
+          required: false
+          description: Filter todo tasks by name
+          schema:
+            type: string
+            nullable: true
+            minLength: 1
+            maxLength: 100
+          examples:
+            java:
+              value: java
+            php:
+              value: php
+      responses:
+        "200":
+          description: Success get all todolist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrayTodolist"
+              examples:
+                success:
+                  description: Example success get all todo tasks
+                  value:
+                    - id: 1
+                      name: java
+                      priority: 3
+                    - id: 2
+                      name: php
+                      priority: 3
+  /todo/tasks/{id}:
+    put:
+      security:
+        - JWTAuth: []
+      tags:
+        - Todo tasks
+      summary: Update existing todo tasks
+      description: Delete existing todo tasks by id
+      parameters:
+        - $ref: "#/components/parameters/TodolistId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrUpdateTodolist"
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+    delete:
+      security:
+        - JWTAuth: []
+      tags:
+        - Todo tasks
+      summary: Delete existing todo tasks
+      description: Delete existing todo tasks by id
+      parameters:
+        - $ref: "#/components/parameters/TodolistId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+  /todo/tasks/{id}/completed:
+    post:
+      security:
+        - JWTAuth: []
+      parameters:
+        - $ref: "#/components/parameters/TodolistId"
+      tags:
+        - Todo tasks
+      summary: Reopen todo tasks
+      description: Reopen todo list task
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+  /todo/tasks/{id}/reopen:
+    post:
+      security:
+        - JWTAuth: []
+      parameters:
+        - $ref: "#/components/parameters/TodolistId"
+      tags:
+        - Todo tasks
+      summary: Reopen todo tasks
+      description: Reopen todo list task
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+  /projects:
+    post:
+      security:
+        - JWTAuth: []
+      tags:
+        - Projects
+      summary: Post todo tasks
+      description: Crate new projects
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Event A Preparation"
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+    get:
+      security:
+        - JWTAuth: []
+      tags:
+        - Projects
+      summary: Get all projects
+      description: Get all active projects by defauld
+      responses:
+        "200":
+          description: Success get all projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                      example: 1010
+                    name:
+                      type: string
+                      example: "Project Event A"
+  /projects/{id}:
+    put:
+      security:
+        - JWTAuth: []
+      tags:
+        - Projects
+      summary: Post todo tasks
+      description: Crate new projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Event A Preparation"
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+    delete:
+      security:
+        - JWTAuth: []
+      tags:
+        - Projects
+      summary: Post todo tasks
+      description: Crate new projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200"
+        "400":
+          $ref: "#/components/responses/Response400"
+components:
+  securitySchemes:
+    JWTAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    TodolistId:
+      name: id
+      in: path
+      required: true
+      description: Todolist id for update
+      schema:
+        type: integer
+  schemas:
+    UsersSchema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: testing
+        username:
+          type: string
+          example: testing
+        no_hp:
+          type: string
+          example: "081234567890"
+        email:
+          type: string
+          example: testing@gmail.com
+        password:
+          type: string
+          example: testing
+    UpdateUserSchema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: testing
+        no_hp:
+          type: string
+          example: "081234567890"
+        email:
+          type: string
+          example: testing@gmail.com
+        password:
+          type: string
+          example: testing
+    SimpleUserSchema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: testing
+        username:
+          type: string
+          example: testing
+        no_hp:
+          type: string
+          example: "081234567890"
+        email:
+          type: string
+          example: testing@gmail.com
+    Todolist:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        priority:
+          type: number
+          format: int32
+        tags:
+          type: array
+          items:
+            type: string
+    ArrayTodolist:
+      type: array
+      items:
+        $ref: "#/components/schemas/Todolist"
+    CreateOrUpdateTodolist:
+      type: object
+      required:
+        - name
+        - priority
+      properties:
+        name:
+          type: string
+          example: "Todo 1"
+        priority:
+          type: number
+          format: int32
+          example: 12312
+        project_id:
+          type: number
+          format: int32
+          example: 12354
+  responses:
+    Response200:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: successfully
+              data:
+                type: object
+                example: {}
+    Response201:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 201
+              message:
+                type: string
+                example: successfully
+              data:
+                type: object
+    Response400:
+      description: bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 400
+              message:
+                type: string
+                example: bad request (bind, validate, duplicate)
+              data:
+                type: object
+                example: null
+    Response401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 401
+              message:
+                type: string
+                example: username or password is wrong
+              data:
+                type: object
+                example: null
