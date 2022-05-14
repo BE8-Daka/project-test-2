@@ -16,3 +16,10 @@ type InsertLogin struct {
 	Name 		string 		`json:"name"`
 	Token 		string 		`json:"token"`
 }
+
+type GetUser struct {
+	Name 		string 		`json:"name"`
+	Username 	string 		`json:"username"`
+	NoHp 		string 		`json:"no_hp"`
+	Email 		string 		`json:"email"`
+}

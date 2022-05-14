@@ -62,3 +62,19 @@ func (m *userModel) Login(username, password string) (response.InsertLogin, erro
 		}
 	}
 }
+
+func (m *userModel) GetbyID(id uint) response.GetUser {
+	var user entity.User
+	result := m.DB.Where("id = ?", id).First(&user)
+
+	if result.RowsAffected == 0 {
+		return response.GetUser{}
+	} else {
+		return response.GetUser{
+			Name: 	user.Name,
+			Username: user.Username,
+			NoHp: 	user.NoHp,
+			Email: 	user.Email,
+		}
+	}
+}

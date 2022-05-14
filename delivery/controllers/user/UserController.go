@@ -81,3 +81,13 @@ func (c *userController) Login() echo.HandlerFunc {
 		return ctx.JSON(http.StatusOK, response.StatusOK(result))
 	}
 }
+
+func (c *userController) GetbyID() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		user_id := middlewares.ExtractTokenUserId(ctx)
+		
+		result := c.Connect.GetbyID(uint(user_id))
+		
+		return ctx.JSON(http.StatusOK, response.StatusOK(result))
+	}
+}

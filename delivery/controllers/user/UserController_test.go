@@ -3,7 +3,6 @@ package user
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"project-test/delivery/middlewares"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -186,7 +186,6 @@ func TestLogin(t *testing.T) {
 
 		var resp Response
 		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
-		fmt.Println(res.Body.String())
 
 		assert.Equal(t, 200, resp.Code)
 		assert.Equal(t, "successfully", resp.Message)
@@ -284,6 +283,34 @@ func TestLogin(t *testing.T) {
 	})
 }
 
+func TestGetbyID(t *testing.T) {
+	t.Run("Status OK", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/users/profile")
+		controller := NewUserController(&mockUser{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.GetbyID())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+		
+		assert.Equal(t, 200, resp.Code)
+		assert.Equal(t, "successfully", resp.Message)
+		assert.Equal(t, map[string]interface {}(map[string]interface {}{"email":"dakasakti.id@gmail.com", "name":"Mahmuda Karima", "no_hp":"082278268513", "username":"dakasakti"}), resp.Data)
+	})
+}
+
 type mockUser struct {}
 
 func (m *mockUser) Insert(user *entity.User) (response.InsertUser, error) {
@@ -305,6 +332,15 @@ func (m *mockUser) Login(username, password string) (response.InsertLogin, error
 	}, nil
 }
 
+func (m *mockUser) GetbyID(id uint) response.GetUser {
+	return response.GetUser{
+		Name: "Mahmuda Karima",
+    	Username: "dakasakti",
+    	NoHp: "082278268513",
+    	Email: "dakasakti.id@gmail.com",
+	}
+}
+
 type mockError struct {}
 
 func (m *mockError) Insert(user *entity.User) (response.InsertUser, error) {
@@ -313,4 +349,8 @@ func (m *mockError) Insert(user *entity.User) (response.InsertUser, error) {
 
 func (m *mockError) Login(username, password string) (response.InsertLogin, error) {
 	return response.InsertLogin{}, errors.New("username or password is wrong")
+}
+
+func (m *mockError) GetbyID(id uint) response.GetUser {
+	return response.GetUser{}
 }

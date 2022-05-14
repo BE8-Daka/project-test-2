@@ -16,12 +16,12 @@ func CreateToken(userId uint) (string, error) {
 	return token.SignedString([]byte("$4dm!n$"))
 }
 
-func ExtractTokenUserId(e echo.Context) uint {
+func ExtractTokenUserId(e echo.Context) float64 {
 	user := e.Get("user").(*jwt.Token)
 
 	if user.Valid {
 		claims := user.Claims.(jwt.MapClaims)
-		userId := claims["userId"].(uint)
+		userId := claims["userId"].(float64)
 		return userId
 	}
 
