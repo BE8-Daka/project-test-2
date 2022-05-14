@@ -7,5 +7,6 @@ import (
 )
 
 func UserPath(e *echo.Echo, c user.UserController) {
-	e.POST("/users", c.Insert())
+	e.POST("/users/register", c.Insert())
+	e.POST("/users/login", c.Login())
 }

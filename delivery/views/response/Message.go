@@ -8,6 +8,14 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+func StatusOK(data interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"code": http.StatusOK,
+		"message" : "successfully",
+		"data" : data,
+	}
+}
+
 func StatusCreated(data interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"code": http.StatusCreated,
@@ -67,6 +75,14 @@ func StatusBadRequestDuplicate(err error) map[string]interface{} {
 	return map[string]interface{}{
 		"code":    http.StatusBadRequest,
 		"message": "field "+message+" : duplicate!",
+		"data":    nil,
+	}
+}
+
+func StatusUnautorized(err error) map[string]interface{} {
+	return map[string]interface{}{
+		"code":    http.StatusUnauthorized,
+		"message": err.Error(),
 		"data":    nil,
 	}
 }

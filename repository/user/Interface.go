@@ -7,4 +7,5 @@ import (
 
 type UserModel interface {
 	Insert(user *entity.User) (response.InsertUser, error)
+	Login(username, password string) (response.InsertLogin, error)
 }

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"project-test/delivery/views/response"
 	"project-test/entity"
 	"strings"
@@ -39,5 +40,25 @@ func (m *userModel) Insert(user *entity.User) (response.InsertUser, error) {
 			Password: originalPassword,
 			CreatedAt: user.CreatedAt,
 		}, nil
+	}
+}
+
+func (m *userModel) Login(username, password string) (response.InsertLogin, error) {
+	var user entity.User
+	result := m.DB.Where("username = ?", username).First(&user)
+
+	if result.RowsAffected == 0 {
+		return response.InsertLogin{}, errors.New("username or password is wrong")
+	} else {
+		err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+		if err != nil {
+			return response.InsertLogin{}, errors.New("username or password is wrong")
+		} else {
+			return response.InsertLogin{
+				ID: 	user.ID,
+				Name: 	user.Name,
+				Token: 	"",
+			}, nil
+		}
 	}
 }

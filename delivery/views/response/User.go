@@ -10,3 +10,9 @@ type InsertUser struct {
 	Password  string 	`json:"password"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type InsertLogin struct {
+	ID 			uint 		`json:"id"`
+	Name 		string 		`json:"name"`
+	Token 		string 		`json:"token"`
+}

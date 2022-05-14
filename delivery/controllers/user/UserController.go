@@ -6,6 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"project-test/delivery/middlewares"
 	"project-test/delivery/views/request"
 	"project-test/delivery/views/response"
 
@@ -53,5 +54,30 @@ func (c *userController) Insert() echo.HandlerFunc {
 		}
 
 		return ctx.JSON(http.StatusCreated, response.StatusCreated(result))
+	}
+}
+
+func (c *userController) Login() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		var request request.InsertLogin
+
+		if err := ctx.Bind(&request); err != nil {
+			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestBind(err))
+		}
+
+		if err := c.Validate.Struct(request); err != nil {
+			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestRequired(err))
+		}
+
+		result, err := c.Connect.Login(request.Username, request.Password)
+		if err != nil {
+			return ctx.JSON(http.StatusUnauthorized, response.StatusUnautorized(err))
+		}
+
+		if result.Token == "" {
+			result.Token, _ = middlewares.CreateToken(result.ID)
+		}
+		
+		return ctx.JSON(http.StatusOK, response.StatusOK(result))
 	}
 }
