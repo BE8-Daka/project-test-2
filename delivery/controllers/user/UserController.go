@@ -121,3 +121,13 @@ func (c *userController) Update() echo.HandlerFunc {
 		return ctx.JSON(http.StatusOK, response.StatusOK(result))
 	}
 }
+
+func (c *userController) Delete() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		user_id := middlewares.ExtractTokenUserId(ctx)
+
+		result := c.Connect.Delete(uint(user_id))
+
+		return ctx.JSON(http.StatusOK, response.StatusOK(result))
+	}
+}

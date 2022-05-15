@@ -7,19 +7,30 @@
     "email" : "testing@gmail.com",
     "password" : "testing"
 }
+
 ========================================
+
 [POST] {url:8000}/users/login
 
 {
     "username" : "testing",
     "password" : "testing"
 }
+
 ========================================
+
 [JWT][GET] {url:8000}/users/profile
+
 ========================================
+
 [JWT][PUT] {url:8000}/users/profile
 
 {
     "name" : "testing updated"
 }
+
+========================================
+
+[JWT][DELETE] {url:8000}/users/profile
+
 ========================================

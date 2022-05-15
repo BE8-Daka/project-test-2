@@ -14,4 +14,5 @@ func UserPath(e *echo.Echo, c user.UserController) {
 	auth := e.Group("/users", middleware.JWT([]byte("$4dm!n$")))
 	auth.GET("/profile", c.GetbyID())
 	auth.PUT("/profile", c.Update())
+	auth.DELETE("/profile", c.Delete())
 }

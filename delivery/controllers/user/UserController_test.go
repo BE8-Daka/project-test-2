@@ -10,6 +10,7 @@ import (
 	"project-test/entity"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -432,6 +433,34 @@ func TestUpdate(t *testing.T) {
 	})
 }
 
+func TestDelete(t *testing.T) {
+	t.Run("Status OK", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/users/profile")
+		controller := NewUserController(&mockUser{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.Delete())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+		
+		assert.Equal(t, 200, resp.Code)
+		assert.Equal(t, "successfully", resp.Message)
+		assert.Equal(t, map[string]interface {}{"deleted_at": "0001-01-01T00:00:00Z", "name":"testing"}, resp.Data)
+	})
+}
+
 type mockUser struct {}
 
 func (m *mockUser) Insert(user *entity.User) (response.InsertUser, error) {
@@ -472,6 +501,13 @@ func (m *mockUser) Update(user_id uint, user *entity.User) (response.UpdateUser,
 	}, nil
 }
 
+func (m *mockUser) Delete(user_id uint) response.DeleteUser {
+	return response.DeleteUser{
+		Name: "testing",
+		DeletedAt: time.Time{},
+	}
+}
+
 type mockError struct {}
 
 func (m *mockError) Insert(user *entity.User) (response.InsertUser, error) {
@@ -488,4 +524,8 @@ func (m *mockError) GetbyID(id uint) response.GetUser {
 
 func (m *mockError) Update(user_id uint, user *entity.User) (response.UpdateUser, error) {
 	return response.UpdateUser{}, errors.New("field '...' : duplicate!")
+}
+
+func (m *mockError) Delete(user_id uint) response.DeleteUser {
+	return response.DeleteUser{}
 }

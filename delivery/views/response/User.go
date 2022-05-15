@@ -1,6 +1,8 @@
 package response
 
-import "time"
+import (
+	"time"
+)
 
 type InsertUser struct {
 	Name      string 	`json:"name"`
@@ -30,4 +32,9 @@ type UpdateUser struct {
 	Email     string 	`json:"email"`
 	Password  string 	`json:"password"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type DeleteUser struct {
+	Name	  string 	`json:"name"`
+	DeletedAt time.Time `json:"deleted_at"`
 }

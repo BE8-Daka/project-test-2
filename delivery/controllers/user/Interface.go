@@ -7,4 +7,5 @@ type UserController interface {
 	Login() echo.HandlerFunc
 	GetbyID() echo.HandlerFunc
 	Update() echo.HandlerFunc
+	Delete() echo.HandlerFunc
 }
