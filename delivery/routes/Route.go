@@ -29,4 +29,5 @@ func ProjectPath(e *echo.Echo, c project.ProjectController) {
 	auth.POST("", c.Insert())
 	auth.GET("", c.GetAll())
 	auth.PUT("/:id", c.Update())
+	auth.DELETE("/:id", c.Delete())
 }

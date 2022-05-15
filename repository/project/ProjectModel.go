@@ -29,10 +29,18 @@ func (m *projectModel) Insert(project *entity.Project) (response.InsertProject, 
 }
 
 func (m *projectModel) GetAll(user_id uint) []response.Project {
-	var projects []response.Project
+	var projects []entity.Project
 	m.DB.Where("user_id = ?", user_id).Find(&projects)
 
-	return projects
+	var results []response.Project
+	for _, product := range projects {
+		results = append(results, response.Project{
+			ID: product.ID,
+			Name: product.Name,
+		})
+	}
+
+	return results
 }
 
 func (m *projectModel) Update(id uint, project *entity.Project) response.UpdateProject {
@@ -52,5 +60,17 @@ func (m *projectModel) CheckExist(id, user_id uint) bool {
 		return false
 	} else {
 		return true
+	}
+}
+
+func (m *projectModel) Delete(id uint) response.DeleteProject {
+	var project *entity.Project
+	
+	m.DB.Where("id = ?", id).Find(&project)
+	m.DB.Delete(&project)
+
+	return response.DeleteProject{
+		Name: 	project.Name,
+		DeletedAt: project.DeletedAt,
 	}
 }

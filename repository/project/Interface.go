@@ -9,5 +9,6 @@ type ProjectModel interface {
 	Insert(project *entity.Project) (response.InsertProject, error)
 	GetAll(user_id uint) []response.Project
 	Update(id uint, project *entity.Project) response.UpdateProject
+	Delete(id uint) response.DeleteProject
 	CheckExist(id, user_id uint) bool
 }

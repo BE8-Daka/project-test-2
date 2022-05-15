@@ -6,4 +6,5 @@ type ProjectController interface {
 	Insert() echo.HandlerFunc
 	GetAll() echo.HandlerFunc
 	Update() echo.HandlerFunc
+	Delete() echo.HandlerFunc
 }

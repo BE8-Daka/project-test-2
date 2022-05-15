@@ -255,23 +255,10 @@ paths:
       tags:
         - Projects
       summary: Get all projects
-      description: Get all active projects by defauld
+      description: mengambil semua data yang dibuat oleh user yang login
       responses:
         "200":
-          description: Success get all projects
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                      example: 1010
-                    name:
-                      type: string
-                      example: "Project Event A"
+          $ref: "#/components/responses/Response200_array"
   /projects/{id}:
     put:
       security:
@@ -319,8 +306,8 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/Response200"
-        "400":
-          $ref: "#/components/responses/Response400"
+        "403":
+          $ref: "#/components/responses/Response403"
 components:
   securitySchemes:
     JWTAuth:
@@ -431,6 +418,22 @@ components:
               data:
                 type: object
                 example: {}
+    Response200_array:
+      description: success create
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: successfully
+              data:
+                type: array
+                example: [{ "id": 1, "name": "project new" }, { "id": 1, "name": "project kedua" }]
     Response201:
       description: success create
       content:

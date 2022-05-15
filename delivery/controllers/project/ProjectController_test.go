@@ -15,6 +15,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 var (
@@ -232,6 +233,7 @@ func TestUpdate(t *testing.T) {
 
 		assert.Equal(t, 403, resp.Code)
 		assert.Equal(t, "you are not allowed to access this resource", resp.Message)
+		assert.Nil(t, resp.Data)
 	})
 
 	t.Run("Status BadRequest Bind", func(t *testing.T) {
@@ -295,6 +297,62 @@ func TestUpdate(t *testing.T) {
 	})
 }
 
+func TestDelete(t *testing.T) {
+	t.Run("Status OK", func(t *testing.T) {
+		e := echo.New()
+		
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/projects")
+		controller := NewProjectController(&mockProject{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.Delete())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 200, resp.Code)
+		assert.Equal(t, "successfully deleted", resp.Message)
+		assert.Equal(t,  map[string]interface {}{"deleted_at":interface {}(nil), "name":"project"}, resp.Data)
+	})
+
+	t.Run("Status Forbidden", func(t *testing.T) {
+		e := echo.New()
+		
+		req := httptest.NewRequest(http.MethodPut, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/projects")
+		controller := NewProjectController(&mockError{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.Delete())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 403, resp.Code)
+		assert.Equal(t, "you are not allowed to access this resource", resp.Message)
+		assert.Nil(t, resp.Data)
+	})
+}
+
 type mockProject struct {}
 
 func (m *mockProject) Insert(project *entity.Project) (response.InsertProject, error) {
@@ -328,6 +386,13 @@ func (m *mockProject) CheckExist(id, user_id uint) bool {
 	return true
 }
 
+func (m *mockProject) Delete(id uint) response.DeleteProject {
+	return response.DeleteProject{
+		Name: "project",
+		DeletedAt: gorm.DeletedAt{},
+	}
+}
+
 type mockError struct {}
 
 func (m *mockError) Insert(project *entity.Project) (response.InsertProject, error) {
@@ -347,4 +412,8 @@ func (m *mockError) Update(id uint, project *entity.Project) response.UpdateProj
 
 func (m *mockError) CheckExist(id, user_id uint) bool {
 	return false
+}
+
+func (m *mockError) Delete(id uint) response.DeleteProject {
+	return response.DeleteProject{}
 }
