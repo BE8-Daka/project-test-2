@@ -60,6 +60,10 @@ func (c *taskController) GetAll() echo.HandlerFunc {
 
 		results := c.Connect.GetAll(uint(user_id))
 
+		if len(results) == 0 {
+			return ctx.JSON(http.StatusNotFound, response.StatusNotFound("tasks"))
+		}
+
 		return ctx.JSON(http.StatusOK, response.StatusOK("get all data", results))
 	}
 }
@@ -123,5 +127,20 @@ func (c *taskController) UpdateStatus() echo.HandlerFunc {
 			result := c.Connect.UpdateStatus(uint(id), &map[string]interface{}{"status": true})
 			return ctx.JSON(http.StatusOK, response.StatusOK("task reopen", result))
 		}
+	}
+}
+
+func (c *taskController) GetTaskbyID() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		user_id := middlewares.ExtractTokenUserId(ctx)
+		project_id, _ := strconv.Atoi(ctx.Param("project_id"))
+
+		results := c.Connect.GetTaskbyID(uint(project_id), uint(user_id))
+
+		if len(results) == 0 {
+			return ctx.JSON(http.StatusNotFound, response.StatusNotFound("tasks"))
+		}
+
+		return ctx.JSON(http.StatusOK, response.StatusOK("get all data", results))
 	}
 }

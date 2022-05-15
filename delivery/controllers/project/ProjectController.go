@@ -61,6 +61,10 @@ func (c *projectController) GetAll() echo.HandlerFunc {
 
 		projects := c.Connect.GetAll(uint(user_id))
 
+		if len(projects) == 0 {
+			return ctx.JSON(http.StatusNotFound, response.StatusNotFound("projects"))
+		}
+
 		return ctx.JSON(http.StatusOK, response.StatusOK("get all data", projects))
 	}
 }

@@ -90,3 +90,19 @@ func (m *taskModel) UpdateStatus(id uint, task *map[string]interface{}) response
 		UpdatedAt: task_update.UpdatedAt,
 	}
 }
+
+func (m *taskModel) GetTaskbyID(project_id, user_id uint) []response.TaskID {
+	var tasks []entity.Task
+	m.DB.Where("project_id = ? AND user_id = ? AND status = ?", project_id, user_id, true).Find(&tasks)
+
+	var results []response.TaskID
+	for _, task := range tasks {
+		results = append(results, response.TaskID {
+			ID: task.ID,
+			Name: task.Name,
+		})
+	}
+
+	
+	return results
+}

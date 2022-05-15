@@ -27,6 +27,9 @@ func TaskPath(e *echo.Echo, c task.TaskController) {
 	auth.DELETE("/:id", c.Delete())
 	auth.POST("/:id/completed", c.UpdateStatus())
 	auth.POST("/:id/reopen", c.UpdateStatus())
+
+	project := e.Group("/projects", middleware.JWT([]byte("$4dm!n$")))
+	project.GET("/:project_id/tasks", c.GetTaskbyID())
 }
 
 func ProjectPath(e *echo.Echo, c project.ProjectController) {

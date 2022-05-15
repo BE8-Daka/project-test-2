@@ -102,3 +102,11 @@ func StatusForbidden() map[string]interface{} {
 		"data":    nil,
 	}
 }
+
+func StatusNotFound(message string) map[string]interface{} {
+	return map[string]interface{}{
+		"code":    http.StatusNotFound,
+		"message": message+" not found",
+		"data":    nil,
+	}
+}

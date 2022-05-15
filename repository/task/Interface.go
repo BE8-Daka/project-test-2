@@ -12,4 +12,5 @@ type TaskModel interface {
 	Delete(id uint) response.DeleteTask
 	UpdateStatus(id uint, task *map[string]interface{}) response.UpdateTask
 	CheckExist(id, user_id uint) bool
+	GetTaskbyID(project_id, user_id uint) []response.TaskID
 }

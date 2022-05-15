@@ -309,6 +309,23 @@ paths:
           $ref: "#/components/responses/Response200"
         "403":
           $ref: "#/components/responses/Response403"
+  /projects/{id}/tasks:
+    get:
+      security:
+        - JWTAuth: []
+      tags:
+        - Projects
+      summary: Get all tasks by project_id
+      description: mengambil semua data task yang berhubungan dengan project yang dibuat oleh user yang login
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/Response200_array"
 components:
   securitySchemes:
     JWTAuth:

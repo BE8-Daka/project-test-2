@@ -175,6 +175,32 @@ func TestGetAll(t *testing.T) {
 		assert.Equal(t, "successfully get all data", resp.Message)
 		assert.Equal(t, []interface {}([]interface {}{map[string]interface {}{"id":float64(1), "name":"testing"}, map[string]interface {}{"id":float64(2), "name":"testing 2"}}), resp.Data)
 	})
+
+	t.Run("Status NotFound", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/tasks")
+		controller := NewProjectController(&mockError{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.GetAll())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+		
+		assert.Equal(t, 404, resp.Code)
+		assert.Equal(t, "projects not found", resp.Message)
+		assert.Nil(t, resp.Data)
+	})
 }
 
 func TestUpdate(t *testing.T) {
