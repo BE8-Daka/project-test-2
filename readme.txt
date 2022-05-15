@@ -34,3 +34,11 @@
 [JWT][DELETE] {url:8000}/users/profile
 
 ========================================
+
+[JWT][POST] {url:8000}/projects
+
+{
+    "name" : "project pertama"
+}
+
+========================================

@@ -1,7 +1,8 @@
 package routes
 
 import (
-	user "project-test/delivery/controllers/user"
+	"project-test/delivery/controllers/project"
+	"project-test/delivery/controllers/user"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -15,4 +16,9 @@ func UserPath(e *echo.Echo, c user.UserController) {
 	auth.GET("/profile", c.GetbyID())
 	auth.PUT("/profile", c.Update())
 	auth.DELETE("/profile", c.Delete())
+}
+
+func ProjectPath(e *echo.Echo, c project.ProjectController) {
+	auth := e.Group("/projects", middleware.JWT([]byte("$4dm!n$")))
+	auth.POST("", c.Insert())
 }

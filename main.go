@@ -5,10 +5,12 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"project-test/config"
+	"project-test/delivery/controllers/project"
 	"project-test/delivery/controllers/user"
 	"project-test/delivery/middlewares"
 	"project-test/delivery/routes"
-	repo "project-test/repository/user"
+	repoProject "project-test/repository/project"
+	repoUser "project-test/repository/user"
 )
 func main() {
 	setting := config.InitConfig()
@@ -18,7 +20,8 @@ func main() {
 	e := echo.New()
 	
 	middlewares.General(e)
-	routes.UserPath(e, user.NewUserController(repo.NewUserModel(db), validator.New()))
+	routes.UserPath(e, user.NewUserController(repoUser.NewUserModel(db), validator.New()))
+	routes.ProjectPath(e, project.NewProjectController(repoProject.NewProjectModel(db), validator.New()))
 
 	e.Start(":8000")
 }

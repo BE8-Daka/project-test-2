@@ -235,7 +235,7 @@ paths:
       tags:
         - Projects
       summary: Post todo tasks
-      description: Crate new projects
+      description: membuat project
       requestBody:
         required: true
         content:
@@ -247,8 +247,8 @@ paths:
                   type: string
                   example: "Event A Preparation"
       responses:
-        "200":
-          $ref: "#/components/responses/Response200"
+        "201":
+          $ref: "#/components/responses/Response201"
         "400":
           $ref: "#/components/responses/Response400"
     get:
