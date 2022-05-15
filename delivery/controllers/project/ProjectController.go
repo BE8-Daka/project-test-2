@@ -53,3 +53,13 @@ func (c *projectController) Insert() echo.HandlerFunc {
 		return ctx.JSON(http.StatusCreated, response.StatusCreated(result))
 	}
 }
+
+func (c *projectController) GetAll() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		user_id := middlewares.ExtractTokenUserId(ctx)
+
+		projects := c.Connect.GetAll(uint(user_id))
+
+		return ctx.JSON(http.StatusOK, response.StatusOK("get all data", projects))
+	}
+}

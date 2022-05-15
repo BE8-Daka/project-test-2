@@ -3,7 +3,6 @@ package project
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"project-test/delivery/middlewares"
@@ -52,7 +51,6 @@ func TestInsert(t *testing.T) {
 
 		var resp Response
 		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
-		fmt.Println(res.Body.String())
 
 		assert.Equal(t, 201, resp.Code)
 		assert.Equal(t, "successfully created", resp.Message)
@@ -150,6 +148,34 @@ func TestInsert(t *testing.T) {
 	})
 }
 
+func TestGetAll(t *testing.T) {
+	t.Run("Status OK", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/projects")
+		controller := NewProjectController(&mockProject{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.GetAll())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+		
+		assert.Equal(t, 200, resp.Code)
+		assert.Equal(t, "successfully get all data", resp.Message)
+		assert.Equal(t, []interface {}([]interface {}{map[string]interface {}{"id":float64(1), "name":"testing"}, map[string]interface {}{"id":float64(2), "name":"testing 2"}}), resp.Data)
+	})
+}
+
 type mockProject struct {}
 
 func (m *mockProject) Insert(project *entity.Project) (response.InsertProject, error) {
@@ -159,8 +185,25 @@ func (m *mockProject) Insert(project *entity.Project) (response.InsertProject, e
 	}, nil
 }
 
+func (m *mockProject) GetAll(user_id uint) []response.Project {
+	return []response.Project{
+		{
+			ID: 1,
+			Name: "testing",
+		},
+		{
+			ID: 2,
+			Name: "testing 2",
+		},
+	}
+}
+
 type mockError struct {}
 
 func (m *mockError) Insert(project *entity.Project) (response.InsertProject, error) {
 	return response.InsertProject{}, errors.New("field '...' : duplicate!")
+}
+
+func (m *mockError) GetAll(user_id uint) []response.Project {
+	return []response.Project{}
 }

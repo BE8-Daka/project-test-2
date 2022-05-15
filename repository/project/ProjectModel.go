@@ -27,3 +27,14 @@ func (m *projectModel) Insert(project *entity.Project) (response.InsertProject, 
 		}, nil
 	}
 }
+
+func (m *projectModel) GetAll(user_id uint) []response.Project {
+	var projects []response.Project
+	result := m.DB.Where("user_id = ?", user_id).Find(&projects)
+
+	if result.RowsAffected == 0 {
+		return []response.Project{}
+	} else {
+		return projects
+	}
+}

@@ -7,4 +7,5 @@ import (
 
 type ProjectModel interface {
 	Insert(project *entity.Project) (response.InsertProject, error)
+	GetAll(user_id uint) []response.Project
 }
