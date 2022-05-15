@@ -176,6 +176,125 @@ func TestGetAll(t *testing.T) {
 	})
 }
 
+func TestUpdate(t *testing.T) {
+	t.Run("Status OK", func(t *testing.T) {
+		e := echo.New()
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name": "project",
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", strings.NewReader(string(requestBody)))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/projects")
+		controller := NewProjectController(&mockProject{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.Update())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 200, resp.Code)
+		assert.Equal(t, "successfully updated", resp.Message)
+		assert.Equal(t, map[string]interface {}{"name":"project", "updated_at":"0001-01-01T00:00:00Z"}, resp.Data)
+	})
+
+	t.Run("Status Forbidden", func(t *testing.T) {
+		e := echo.New()
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name": "project",
+		})
+		req := httptest.NewRequest(http.MethodPut, "/", strings.NewReader(string(requestBody)))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/projects")
+		controller := NewProjectController(&mockError{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.Update())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 403, resp.Code)
+		assert.Equal(t, "you are not allowed to access this resource", resp.Message)
+	})
+
+	t.Run("Status BadRequest Bind", func(t *testing.T) {
+		e := echo.New()
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name":     1,
+		})
+
+		req := httptest.NewRequest(http.MethodPut, "/", strings.NewReader(string(requestBody)))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/projects")
+		controller := NewProjectController(&mockProject{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.Update())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 400, resp.Code)
+		assert.Equal(t, "field=name, expected=string", resp.Message)
+		assert.Nil(t, resp.Data)
+	})
+
+	t.Run("Status BadRequest Required", func(t *testing.T) {
+		e := echo.New()
+		requestBody, _ := json.Marshal(map[string]interface{}{
+			"name": "",
+		})
+
+		req := httptest.NewRequest(http.MethodPut, "/", strings.NewReader(string(requestBody)))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/projects")
+		controller := NewProjectController(&mockProject{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.Update())(context)
+
+		type Response struct {
+			Code    int      `json:"code"`
+			Message []string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 400, resp.Code)
+		assert.Equal(t, []string{"field Name : required"}, resp.Message)
+		assert.Nil(t, resp.Data)
+	})
+}
+
 type mockProject struct {}
 
 func (m *mockProject) Insert(project *entity.Project) (response.InsertProject, error) {
@@ -198,6 +317,17 @@ func (m *mockProject) GetAll(user_id uint) []response.Project {
 	}
 }
 
+func (m *mockProject) Update(id uint, project *entity.Project) response.UpdateProject {
+	return response.UpdateProject{
+		Name: project.Name,
+		UpdatedAt: project.UpdatedAt,
+	}
+}
+
+func (m *mockProject) CheckExist(id, user_id uint) bool {
+	return true
+}
+
 type mockError struct {}
 
 func (m *mockError) Insert(project *entity.Project) (response.InsertProject, error) {
@@ -206,4 +336,15 @@ func (m *mockError) Insert(project *entity.Project) (response.InsertProject, err
 
 func (m *mockError) GetAll(user_id uint) []response.Project {
 	return []response.Project{}
+}
+
+func (m *mockError) Update(id uint, project *entity.Project) response.UpdateProject {
+	return response.UpdateProject{
+		Name: project.Name,
+		UpdatedAt: project.UpdatedAt,
+	}
+}
+
+func (m *mockError) CheckExist(id, user_id uint) bool {
+	return false
 }

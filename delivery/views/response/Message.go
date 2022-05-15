@@ -86,3 +86,11 @@ func StatusUnautorized(err error) map[string]interface{} {
 		"data":    nil,
 	}
 }
+
+func StatusForbidden() map[string]interface{} {
+	return map[string]interface{}{
+		"code":    http.StatusForbidden,
+		"message": "you are not allowed to access this resource",
+		"data":    nil,
+	}
+}

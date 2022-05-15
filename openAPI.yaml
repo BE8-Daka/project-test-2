@@ -279,7 +279,7 @@ paths:
       tags:
         - Projects
       summary: Post todo tasks
-      description: Crate new projects
+      description: mengupdate data projects sesuai user yang membuat pertama kali
       parameters:
         - name: id
           in: path
@@ -301,6 +301,8 @@ paths:
           $ref: "#/components/responses/Response200"
         "400":
           $ref: "#/components/responses/Response400"
+        "403":
+          $ref: "#/components/responses/Response403"
     delete:
       security:
         - JWTAuth: []
@@ -473,6 +475,22 @@ components:
               message:
                 type: string
                 example: username or password is wrong
+              data:
+                type: object
+                example: null
+    Response403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: number
+                example: 403
+              message:
+                type: string
+                example: you are not allowed to access this resource
               data:
                 type: object
                 example: null

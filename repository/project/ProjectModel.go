@@ -30,11 +30,27 @@ func (m *projectModel) Insert(project *entity.Project) (response.InsertProject, 
 
 func (m *projectModel) GetAll(user_id uint) []response.Project {
 	var projects []response.Project
-	result := m.DB.Where("user_id = ?", user_id).Find(&projects)
+	m.DB.Where("user_id = ?", user_id).Find(&projects)
+
+	return projects
+}
+
+func (m *projectModel) Update(id uint, project *entity.Project) response.UpdateProject {
+	m.DB.Where("id = ?", id).Updates(&project)
+
+	return response.UpdateProject{
+		Name: 	project.Name,
+		UpdatedAt: project.UpdatedAt,
+	}
+}
+
+func (m *projectModel) CheckExist(id, user_id uint) bool {
+	var project entity.Project
+	result := m.DB.Model(&entity.Project{}).Where("id = ? AND user_id = ?", id, user_id).First(&project)
 
 	if result.RowsAffected == 0 {
-		return []response.Project{}
+		return false
 	} else {
-		return projects
+		return true
 	}
 }

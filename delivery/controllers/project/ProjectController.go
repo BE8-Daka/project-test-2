@@ -3,6 +3,7 @@ package project
 import (
 	"net/http"
 	"project-test/entity"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 
@@ -30,7 +31,7 @@ func NewProjectController(db repo.ProjectModel, valid *validator.Validate) *proj
 func (c *projectController) Insert() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		user_id := middlewares.ExtractTokenUserId(ctx)
-		var request request.InsertProject
+		var request request.Project
 
 		if err := ctx.Bind(&request); err != nil {
 			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestBind(err))
@@ -61,5 +62,33 @@ func (c *projectController) GetAll() echo.HandlerFunc {
 		projects := c.Connect.GetAll(uint(user_id))
 
 		return ctx.JSON(http.StatusOK, response.StatusOK("get all data", projects))
+	}
+}
+
+func (c *projectController) Update() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		user_id := middlewares.ExtractTokenUserId(ctx)
+		id, _ := strconv.Atoi(ctx.Param("id"))
+		var request request.Project
+
+		if !c.Connect.CheckExist(uint(id), uint(user_id)) {
+			return ctx.JSON(http.StatusForbidden, response.StatusForbidden())
+		}
+
+		if err := ctx.Bind(&request); err != nil {
+			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestBind(err))
+		}
+
+		if err := c.Validate.Struct(request); err != nil {
+			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestRequired(err))
+		}
+
+		project := entity.Project{
+			Name: request.Name,
+		}
+
+		result := c.Connect.Update(uint(id), &project)
+		
+		return ctx.JSON(http.StatusOK, response.StatusOK("updated", result))
 	}
 }
