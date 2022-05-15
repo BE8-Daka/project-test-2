@@ -35,6 +35,15 @@
 
 ========================================
 
+[JWT][POST] {url:8000}/tasks
+
+{
+    "name" : "project pertama"
+    "project_id" : 1 (opsional)
+}
+
+========================================
+
 [JWT][POST] {url:8000}/projects
 
 {

@@ -33,27 +33,13 @@ func AutoMigrate(db *gorm.DB) {
 	// db.Create(&entity.User{
 	// 	Name: "Admin Website",
 	// 	Username: "admin",
-	// 	HP: "081234567892",
+	// 	NoHp: "081212121212",
 	// 	Email: "admin@gmail.com",
 	// 	Password: "$2a$14$fqChZ4CqMd9uvfE7MU6y4OvjTsBHoIBSbN/Iymyu9fCBJ9/VoCXum", // password
-	// 	Role: 2,
 	// })
 
-	// db.Create(&entity.User{
-	// 	Name: "Merchant Website",
-	// 	Username: "merchant",
-	// 	HP: "081234567891",
-	// 	Email: "merchant@gmail.com",
-	// 	Password: "$2a$14$fqChZ4CqMd9uvfE7MU6y4OvjTsBHoIBSbN/Iymyu9fCBJ9/VoCXum", // password
-	// 	Role: 1,
-	// })
-
-	// db.Create(&entity.User{
-	// 	Name: "User Website",
-	// 	Username: "user",
-	// 	HP: "081234567890",
-	// 	Email: "user@gmail.com",
-	// 	Password: "$2a$14$fqChZ4CqMd9uvfE7MU6y4OvjTsBHoIBSbN/Iymyu9fCBJ9/VoCXum", // password
-	// 	Role: 0,
+	// db.Create(&entity.Project{
+	// 	Name: "Unassigned",
+	// 	UserID: 1,
 	// })
 }
