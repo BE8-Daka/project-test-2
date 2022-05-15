@@ -9,5 +9,6 @@ type TaskModel interface {
 	Insert(task *entity.Task) response.InsertTask
 	GetAll(user_id uint) []response.Task
 	Update(id uint, task *entity.Task) (response.UpdateTask, error)
+	Delete(id uint) response.DeleteTask
 	CheckExist(id, user_id uint) bool
 }

@@ -91,3 +91,18 @@ func (c *taskController) Update() echo.HandlerFunc {
 		return ctx.JSON(http.StatusOK, response.StatusOK("updated", result))
 	}
 }
+
+func (c *taskController) Delete() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		user_id := middlewares.ExtractTokenUserId(ctx)
+		id, _ := strconv.Atoi(ctx.Param("id"))
+
+		if !c.Connect.CheckExist(uint(id), uint(user_id)) {
+			return ctx.JSON(http.StatusForbidden, response.StatusForbidden())
+		}
+
+		result := c.Connect.Delete(uint(id))
+
+		return ctx.JSON(http.StatusOK, response.StatusOK("deleted", result))
+	}
+}

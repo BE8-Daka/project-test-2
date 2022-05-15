@@ -1,6 +1,10 @@
 package response
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type InsertTask struct {
 	Name      string 	`json:"name"`
@@ -16,4 +20,9 @@ type Task struct {
 type UpdateTask struct {
 	Name 		string 		`json:"name"`
 	UpdatedAt 	time.Time 	`json:"updated_at"`
+}
+
+type DeleteTask struct {
+	Name		string			`json:"name"`
+	DeletedAt 	gorm.DeletedAt 	`json:"deleted_at"`
 }

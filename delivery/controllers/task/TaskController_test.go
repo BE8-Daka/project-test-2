@@ -15,6 +15,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 var (
@@ -266,6 +267,62 @@ func TestUpdate(t *testing.T) {
 	})
 }
 
+func TestDelete(t *testing.T) {
+	t.Run("Status OK", func(t *testing.T) {
+		e := echo.New()
+		
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/tasks")
+		controller := NewTaskController(&mockTask{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.Delete())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 200, resp.Code)
+		assert.Equal(t, "successfully deleted", resp.Message)
+		assert.Equal(t,   map[string]interface {}{"deleted_at":interface {}(nil), "name":"testing"}, resp.Data)
+	})
+
+	t.Run("Status Forbidden", func(t *testing.T) {
+		e := echo.New()
+		
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/tasks")
+		controller := NewTaskController(&mockError{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.Delete())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 403, resp.Code)
+		assert.Equal(t, "you are not allowed to access this resource", resp.Message)
+		assert.Nil(t, resp.Data)
+	})
+}
+
 type mockTask struct {}
 
 func (m *mockTask) Insert(task *entity.Task) response.InsertTask {
@@ -301,6 +358,13 @@ func (m *mockTask) CheckExist(id, user_id uint) bool {
 	return true
 }
 
+func (m *mockTask) Delete(id uint) response.DeleteTask {
+	return response.DeleteTask{
+		Name: "testing",
+		DeletedAt: gorm.DeletedAt{},
+	}
+}
+
 type mockErrorRequired struct {}
 
 func (m *mockErrorRequired) Insert(task *entity.Task) response.InsertTask {
@@ -319,6 +383,10 @@ func (m *mockErrorRequired) CheckExist(id, user_id uint) bool {
 	return true
 }
 
+func (m *mockErrorRequired) Delete(id uint) response.DeleteTask {
+	return response.DeleteTask{}
+}
+
 type mockError struct {}
 
 func (m *mockError) Insert(task *entity.Task) response.InsertTask {
@@ -335,4 +403,8 @@ func (m *mockError) Update(id uint, task *entity.Task) (response.UpdateTask, err
 
 func (m *mockError) CheckExist(id, user_id uint) bool {
 	return false
+}
+
+func (m *mockError) Delete(id uint) response.DeleteTask {
+	return response.DeleteTask{}
 }

@@ -33,10 +33,10 @@ func (m *projectModel) GetAll(user_id uint) []response.Project {
 	m.DB.Where("user_id = ?", user_id).Find(&projects)
 
 	var results []response.Project
-	for _, product := range projects {
+	for _, project := range projects {
 		results = append(results, response.Project{
-			ID: product.ID,
-			Name: product.Name,
+			ID: project.ID,
+			Name: project.Name,
 		})
 	}
 

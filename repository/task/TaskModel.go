@@ -68,3 +68,15 @@ func (m *taskModel) CheckExist(id, user_id uint) bool {
 		return true
 	}
 }
+
+func (m *taskModel) Delete(id uint) response.DeleteTask {
+	var task *entity.Task
+	
+	m.DB.Where("id = ?", id).Find(&task)
+	m.DB.Delete(&task)
+
+	return response.DeleteTask{
+		Name: 	task.Name,
+		DeletedAt: task.DeletedAt,
+	}
+}

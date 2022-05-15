@@ -328,7 +328,7 @@ func TestDelete(t *testing.T) {
 	t.Run("Status Forbidden", func(t *testing.T) {
 		e := echo.New()
 		
-		req := httptest.NewRequest(http.MethodPut, "/", nil)
+		req := httptest.NewRequest(http.MethodDelete, "/", nil)
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		req.Header.Set("Authorization", "Bearer "+token)
 
