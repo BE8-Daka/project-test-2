@@ -78,7 +78,7 @@ func (c *userController) Login() echo.HandlerFunc {
 			result.Token, _ = middlewares.CreateToken(result.ID)
 		}
 		
-		return ctx.JSON(http.StatusOK, response.StatusOK(result))
+		return ctx.JSON(http.StatusOK, response.StatusOK("login!", result))
 	}
 }
 
@@ -88,7 +88,7 @@ func (c *userController) GetbyID() echo.HandlerFunc {
 		
 		result := c.Connect.GetbyID(uint(user_id))
 		
-		return ctx.JSON(http.StatusOK, response.StatusOK(result))
+		return ctx.JSON(http.StatusOK, response.StatusOK("get data", result))
 	}
 }
 
@@ -118,7 +118,7 @@ func (c *userController) Update() echo.HandlerFunc {
 			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestDuplicate(err))
 		}
 
-		return ctx.JSON(http.StatusOK, response.StatusOK(result))
+		return ctx.JSON(http.StatusOK, response.StatusOK("updated", result))
 	}
 }
 
@@ -128,6 +128,6 @@ func (c *userController) Delete() echo.HandlerFunc {
 
 		result := c.Connect.Delete(uint(user_id))
 
-		return ctx.JSON(http.StatusOK, response.StatusOK(result))
+		return ctx.JSON(http.StatusOK, response.StatusOK("deleted", result))
 	}
 }

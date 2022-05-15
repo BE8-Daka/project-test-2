@@ -2,15 +2,12 @@ package repository
 
 import (
 	"errors"
-	"fmt"
 	"project-test/delivery/views/response"
 	"project-test/entity"
 	"strings"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type userModel struct {
@@ -102,13 +99,14 @@ func (m *userModel) Update(user_id uint, user *entity.User) (response.UpdateUser
 }
 
 func (m *userModel) Delete(user_id uint) response.DeleteUser {
-	var users []*entity.User
-	m.DB.Clauses(clause.Returning{}).Where("id = ?", user_id).Delete(&users)
+	var user *entity.User
+	// m.DB.Clauses(clause.Returning{}).Where("id = ?", user_id).Delete(&users)
 
-	fmt.Println(users)
+	m.DB.Where("id = ?", user_id).Find(&user)
+	m.DB.Delete(&user)
 
 	return response.DeleteUser{
-		Name : "Admin Statis",
-		DeletedAt : time.Now(),
+		Name : user.Name,
+		DeletedAt : user.DeletedAt,
 	}
 }

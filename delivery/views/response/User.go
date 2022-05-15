@@ -2,6 +2,8 @@ package response
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type InsertUser struct {
@@ -35,6 +37,6 @@ type UpdateUser struct {
 }
 
 type DeleteUser struct {
-	Name	  string 	`json:"name"`
-	DeletedAt time.Time `json:"deleted_at"`
+	Name	  string 		 `json:"name"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
 }

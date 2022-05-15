@@ -10,12 +10,12 @@ import (
 	"project-test/entity"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 var (
@@ -188,7 +188,7 @@ func TestLogin(t *testing.T) {
 		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
 
 		assert.Equal(t, 200, resp.Code)
-		assert.Equal(t, "successfully", resp.Message)
+		assert.Equal(t, "successfully login!", resp.Message)
 		assert.NotNil(t, resp.Data)
 	})
 
@@ -306,7 +306,7 @@ func TestGetbyID(t *testing.T) {
 		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
 		
 		assert.Equal(t, 200, resp.Code)
-		assert.Equal(t, "successfully", resp.Message)
+		assert.Equal(t, "successfully get data", resp.Message)
 		assert.Equal(t, map[string]interface {}(map[string]interface {}{"email":"dakasakti.id@gmail.com", "name":"Mahmuda Karima", "no_hp":"082278268513", "username":"dakasakti"}), resp.Data)
 	})
 }
@@ -337,7 +337,7 @@ func TestUpdate(t *testing.T) {
 		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
 
 		assert.Equal(t, 200, resp.Code)
-		assert.Equal(t, "successfully", resp.Message)
+		assert.Equal(t, "successfully updated", resp.Message)
 		assert.Equal(t, map[string]interface {}{"email":"", "name":"testing updated", "no_hp":"", "password":"", "updated_at":"0001-01-01T00:00:00Z"}, resp.Data)
 	})
 
@@ -456,8 +456,8 @@ func TestDelete(t *testing.T) {
 		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
 		
 		assert.Equal(t, 200, resp.Code)
-		assert.Equal(t, "successfully", resp.Message)
-		assert.Equal(t, map[string]interface {}{"deleted_at": "0001-01-01T00:00:00Z", "name":"testing"}, resp.Data)
+		assert.Equal(t, "successfully deleted", resp.Message)
+		assert.Equal(t, map[string]interface {}{"deleted_at":interface {}(nil), "name":"testing"}, resp.Data)
 	})
 }
 
@@ -504,7 +504,7 @@ func (m *mockUser) Update(user_id uint, user *entity.User) (response.UpdateUser,
 func (m *mockUser) Delete(user_id uint) response.DeleteUser {
 	return response.DeleteUser{
 		Name: "testing",
-		DeletedAt: time.Time{},
+		DeletedAt: gorm.DeletedAt{},
 	}
 }
 

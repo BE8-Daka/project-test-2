@@ -8,10 +8,10 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func StatusOK(data interface{}) map[string]interface{} {
+func StatusOK(message string, data interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"code": http.StatusOK,
-		"message" : "successfully",
+		"message" : "successfully "+message,
 		"data" : data,
 	}
 }
