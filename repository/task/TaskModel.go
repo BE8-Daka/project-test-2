@@ -31,7 +31,7 @@ func (m *taskModel) Insert(task *entity.Task) response.InsertTask {
 
 func (m *taskModel) GetAll(user_id uint) []response.Task {
 	var tasks []entity.Task
-	m.DB.Where("user_id = ?", user_id).Find(&tasks)
+	m.DB.Where("user_id = ? AND status = ?", user_id, true).Find(&tasks)
 
 	var results []response.Task
 	for _, task := range tasks {
@@ -78,5 +78,15 @@ func (m *taskModel) Delete(id uint) response.DeleteTask {
 	return response.DeleteTask{
 		Name: 	task.Name,
 		DeletedAt: task.DeletedAt,
+	}
+}
+
+func (m *taskModel) UpdateStatus(id uint, task *map[string]interface{}) response.UpdateTask {
+	var task_update entity.Task
+	m.DB.Model(&entity.Task{}).Where("id = ?", id).Updates(&task).Find(&task_update)
+
+	return response.UpdateTask{
+		Name: 	task_update.Name,
+		UpdatedAt: task_update.UpdatedAt,
 	}
 }

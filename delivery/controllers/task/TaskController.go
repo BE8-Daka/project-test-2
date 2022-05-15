@@ -106,3 +106,22 @@ func (c *taskController) Delete() echo.HandlerFunc {
 		return ctx.JSON(http.StatusOK, response.StatusOK("deleted", result))
 	}
 }
+
+func (c *taskController) UpdateStatus() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		user_id := middlewares.ExtractTokenUserId(ctx)
+		id, _ := strconv.Atoi(ctx.Param("id"))
+
+		if !c.Connect.CheckExist(uint(id), uint(user_id)) {
+			return ctx.JSON(http.StatusForbidden, response.StatusForbidden())
+		}
+
+		if ctx.Path() == "/tasks/:id/completed" {
+			result := c.Connect.UpdateStatus(uint(id), &map[string]interface{}{"status": false})
+			return ctx.JSON(http.StatusOK, response.StatusOK("task completed", result))
+		} else {
+			result := c.Connect.UpdateStatus(uint(id), &map[string]interface{}{"status": true})
+			return ctx.JSON(http.StatusOK, response.StatusOK("task reopen", result))
+		}
+	}
+}

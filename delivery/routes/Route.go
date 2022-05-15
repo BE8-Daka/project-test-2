@@ -25,6 +25,8 @@ func TaskPath(e *echo.Echo, c task.TaskController) {
 	auth.GET("", c.GetAll())
 	auth.PUT("/:id", c.Update())
 	auth.DELETE("/:id", c.Delete())
+	auth.POST("/:id/completed", c.UpdateStatus())
+	auth.POST("/:id/reopen", c.UpdateStatus())
 }
 
 func ProjectPath(e *echo.Echo, c project.ProjectController) {

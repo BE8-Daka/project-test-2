@@ -7,4 +7,5 @@ type TaskController interface {
 	GetAll() echo.HandlerFunc
 	Update() echo.HandlerFunc
 	Delete() echo.HandlerFunc
+	UpdateStatus() echo.HandlerFunc
 }

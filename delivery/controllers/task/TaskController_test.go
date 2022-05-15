@@ -10,6 +10,7 @@ import (
 	"project-test/entity"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -323,6 +324,89 @@ func TestDelete(t *testing.T) {
 	})
 }
 
+func TestUpdateStatus(t *testing.T) {
+	t.Run("Status OK Completed", func(t *testing.T) {
+		e := echo.New()
+		
+		req := httptest.NewRequest(http.MethodPost, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/tasks/:id/completed")
+		controller := NewTaskController(&mockTask{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.UpdateStatus())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 200, resp.Code)
+		assert.Equal(t, "successfully task completed", resp.Message)
+		assert.Equal(t, map[string]interface {}{"name":"testing", "updated_at":"0001-01-01T00:00:00Z"}, resp.Data)
+	})
+
+	t.Run("Status OK Reopen", func(t *testing.T) {
+		e := echo.New()
+		
+		req := httptest.NewRequest(http.MethodPost, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/tasks/:id/reopen")
+		controller := NewTaskController(&mockTask{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.UpdateStatus())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 200, resp.Code)
+		assert.Equal(t, "successfully task reopen", resp.Message)
+		assert.Equal(t, map[string]interface {}{"name":"testing", "updated_at":"0001-01-01T00:00:00Z"}, resp.Data)
+	})
+
+	t.Run("Status Forbidden", func(t *testing.T) {
+		e := echo.New()
+		
+		req := httptest.NewRequest(http.MethodPost, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/tasks/:id/completed")
+		controller := NewTaskController(&mockError{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.UpdateStatus())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+
+		assert.Equal(t, 403, resp.Code)
+		assert.Equal(t, "you are not allowed to access this resource", resp.Message)
+		assert.Nil(t, resp.Data)
+	})
+}
+
 type mockTask struct {}
 
 func (m *mockTask) Insert(task *entity.Task) response.InsertTask {
@@ -365,6 +449,13 @@ func (m *mockTask) Delete(id uint) response.DeleteTask {
 	}
 }
 
+func (m *mockTask) UpdateStatus(id uint, task *map[string]interface{}) response.UpdateTask {
+	return response.UpdateTask{
+		Name: "testing",
+		UpdatedAt: time.Time{},
+	} 
+}
+
 type mockErrorRequired struct {}
 
 func (m *mockErrorRequired) Insert(task *entity.Task) response.InsertTask {
@@ -387,6 +478,10 @@ func (m *mockErrorRequired) Delete(id uint) response.DeleteTask {
 	return response.DeleteTask{}
 }
 
+func (m *mockErrorRequired) UpdateStatus(id uint, task *map[string]interface{}) response.UpdateTask {
+	return response.UpdateTask{} 
+}
+
 type mockError struct {}
 
 func (m *mockError) Insert(task *entity.Task) response.InsertTask {
@@ -407,4 +502,8 @@ func (m *mockError) CheckExist(id, user_id uint) bool {
 
 func (m *mockError) Delete(id uint) response.DeleteTask {
 	return response.DeleteTask{}
+}
+
+func (m *mockError) UpdateStatus(id uint, task *map[string]interface{}) response.UpdateTask {
+	return response.UpdateTask{} 
 }
