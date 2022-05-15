@@ -7,4 +7,5 @@ import (
 
 type TaskModel interface {
 	Insert(task *entity.Task) response.InsertTask
+	GetAll(user_id uint) []response.Task
 }

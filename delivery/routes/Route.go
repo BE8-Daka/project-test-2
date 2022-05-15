@@ -22,6 +22,7 @@ func UserPath(e *echo.Echo, c user.UserController) {
 func TaskPath(e *echo.Echo, c task.TaskController) {
 	auth := e.Group("/tasks", middleware.JWT([]byte("$4dm!n$")))
 	auth.POST("", c.Insert())
+	auth.GET("", c.GetAll())
 }
 
 func ProjectPath(e *echo.Echo, c project.ProjectController) {

@@ -119,11 +119,54 @@ func TestInsert(t *testing.T) {
 	})
 }
 
+func TestGetAll(t *testing.T) {
+	t.Run("Status OK", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		res := httptest.NewRecorder()
+		context := e.NewContext(req, res)
+		context.SetPath("/tasks")
+		controller := NewTaskController(&mockTask{}, validator.New())
+		middleware.JWT([]byte("$4dm!n$"))(controller.GetAll())(context)
+
+		type Response struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+			Data    interface{}
+		}
+
+		var resp Response
+		json.Unmarshal([]byte(res.Body.Bytes()), &resp)
+		
+		assert.Equal(t, 200, resp.Code)
+		assert.Equal(t, "successfully get all data", resp.Message)
+		assert.Equal(t, []interface {}([]interface {}{map[string]interface {}{"id":float64(1), "name":"testing", "project_id":float64(1)}, map[string]interface {}{"id":float64(2), "name":"testing 2",  "project_id":float64(1)}}), resp.Data)
+	})
+}
+
 type mockTask struct {}
 
 func (m *mockTask) Insert(task *entity.Task) response.InsertTask {
 	return response.InsertTask{
 		Name: task.Name,
 		CreatedAt: task.CreatedAt,
+	}
+}
+
+func (m *mockTask) GetAll(user_id uint) []response.Task {
+	return []response.Task{
+		{
+			ID: 1,
+			Name: "testing",
+			ProjectID: 1,
+		},
+		{
+			ID: 2,
+			Name: "testing 2",
+			ProjectID: 1,
+		},
 	}
 }
