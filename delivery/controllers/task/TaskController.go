@@ -3,6 +3,7 @@ package task
 import (
 	"net/http"
 	"project-test/entity"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 
@@ -60,5 +61,33 @@ func (c *taskController) GetAll() echo.HandlerFunc {
 		results := c.Connect.GetAll(uint(user_id))
 
 		return ctx.JSON(http.StatusOK, response.StatusOK("get all data", results))
+	}
+}
+
+func (c *taskController) Update() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		user_id := middlewares.ExtractTokenUserId(ctx)
+		id, _ := strconv.Atoi(ctx.Param("id"))
+		var request request.UpdateTask
+
+		if !c.Connect.CheckExist(uint(id), uint(user_id)) {
+			return ctx.JSON(http.StatusForbidden, response.StatusForbidden())
+		}
+
+		if err := ctx.Bind(&request); err != nil {
+			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequestBind(err))
+		}
+
+		task := entity.Task{
+			Name: request.Name,
+			ProjectID: request.ProjectID,
+		}
+
+		result, err := c.Connect.Update(uint(id), &task)
+		if err != nil {
+			return ctx.JSON(http.StatusBadRequest, response.StatusBadRequest(err))
+		}
+		
+		return ctx.JSON(http.StatusOK, response.StatusOK("updated", result))
 	}
 }

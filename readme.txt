@@ -46,8 +46,16 @@
 
 [JWT][GET] {url:8000}/tasks
 
+
 ========================================
 
+[JWT][PUT] {url:8000}/tasks/{id}
+
+{
+    "name" : "project updated"
+}
+
+========================================
 [JWT][POST] {url:8000}/projects
 
 {
@@ -60,7 +68,7 @@
 
 ========================================
 
-[JWT][PUT] {url:8000}/projects
+[JWT][PUT] {url:8000}/projects{id}
 
 {
     "name" : "project updated"

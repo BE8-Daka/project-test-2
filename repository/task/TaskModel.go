@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"project-test/delivery/views/response"
 	"project-test/entity"
 
@@ -42,4 +43,28 @@ func (m *taskModel) GetAll(user_id uint) []response.Task {
 	}
 
 	return results
+}
+
+func (m *taskModel) Update(id uint, task *entity.Task) (response.UpdateTask, error) {
+	if task.Name == "" && task.ProjectID == 0 {
+		return response.UpdateTask{}, errors.New("name or project_id is required")
+	}
+
+	m.DB.Where("id = ?", id).Updates(&task)
+
+	return response.UpdateTask{
+		Name: 	task.Name,
+		UpdatedAt: task.UpdatedAt,
+	}, nil
+}
+
+func (m *taskModel) CheckExist(id, user_id uint) bool {
+	var task entity.Task
+	result := m.DB.Where("id = ? AND user_id = ?", id, user_id).First(&task)
+
+	if result.RowsAffected == 0 {
+		return false
+	} else {
+		return true
+	}
 }

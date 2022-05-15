@@ -12,3 +12,8 @@ type Task struct {
 	Name 		string 		`json:"name"`
 	ProjectID 	uint 		`json:"project_id"`
 }
+
+type UpdateTask struct {
+	Name 		string 		`json:"name"`
+	UpdatedAt 	time.Time 	`json:"updated_at"`
+}

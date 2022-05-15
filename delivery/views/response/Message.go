@@ -24,6 +24,14 @@ func StatusCreated(data interface{}) map[string]interface{} {
 	}
 }
 
+func StatusBadRequest(err error) map[string]interface{} {
+	return map[string]interface{}{
+		"code": http.StatusBadRequest,
+		"message" : err.Error(),
+		"data" : nil,
+	}
+}
+
 func StatusBadRequestRequired(err error) map[string]interface{} {
 	var field, tag string
 	var message [] string
